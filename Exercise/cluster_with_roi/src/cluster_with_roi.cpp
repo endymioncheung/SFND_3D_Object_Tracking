@@ -29,17 +29,20 @@ void loadCalibrationData(cv::Mat &P_rect_00, cv::Mat &R_rect_00, cv::Mat &RT)
 
 void showLidarTopview(std::vector<LidarPoint> &lidarPoints, cv::Size worldSize, cv::Size imageSize)
 {
-    // create topview image
-    cv::Mat topviewImg(imageSize, CV_8UC3, cv::Scalar(0, 0, 0));
+    // Create top view image (black background)
+    const cv::Scalar black = cv::Scalar(0, 0, 0);
+    cv::Mat topviewImg(imageSize, CV_8UC3, black);
 
-    // plot Lidar points into image
+    // Plot Lidar points into image
     for (auto it = lidarPoints.begin(); it != lidarPoints.end(); ++it)
     {
-        float xw = (*it).x; // world position in m with x facing forward from sensor
-        float yw = (*it).y; // world position in m with y facing left from sensor
+        // World coordinates
+        float x_world = (*it).x; // world position in m with x facing forward from sensor
+        float y_world = (*it).y; // world position in m with y facing left from sensor
 
-        int y = (-xw * imageSize.height / worldSize.height) + imageSize.height;
-        int x = (-yw * imageSize.height / worldSize.height) + imageSize.width / 2;
+        // Top view coordinates
+        int y = (-x_world * imageSize.height / worldSize.height) + imageSize.height;
+        int x = (-y_world * imageSize.height / worldSize.height) + imageSize.width / 2;
 
         float zw = (*it).z; // world position in m with y facing left from sensor
         if(zw > -1.40){       
@@ -52,20 +55,99 @@ void showLidarTopview(std::vector<LidarPoint> &lidarPoints, cv::Size worldSize, 
         }
     }
 
-    // plot distance markers
+    // Plot distance markers
     float lineSpacing = 2.0; // gap between distance markers
     int nMarkers = floor(worldSize.height / lineSpacing);
+    const cv::Scalar blue = cv::Scalar(255, 0, 0);
     for (size_t i = 0; i < nMarkers; ++i)
     {
         int y = (-(i * lineSpacing) * imageSize.height / worldSize.height) + imageSize.height;
-        cv::line(topviewImg, cv::Point(0, y), cv::Point(imageSize.width, y), cv::Scalar(255, 0, 0));
+        cv::line(topviewImg, cv::Point(0, y), cv::Point(imageSize.width, y), blue);
     }
 
-    // display image
+    // Display image
     string windowName = "Top-View Perspective of LiDAR data";
     cv::namedWindow(windowName, 2);
     cv::imshow(windowName, topviewImg);
     cv::waitKey(0); // wait for key to be pressed
+}
+
+void show3DObjects(std::vector<BoundingBox> &boundingBoxes, cv::Size worldSize, cv::Size imageSize, bool bWait)
+{
+    // Create top view image (white background)
+    const cv::Scalar white = cv::Scalar(255, 255, 255);
+    cv::Mat topviewImg(imageSize, CV_8UC3, white);
+
+    // Overlay bounding boxes onto image
+    for (auto it1 = boundingBoxes.begin(); it1 != boundingBoxes.end(); ++it1)
+    {
+        // Create randomized color for current 3D object
+        int num_unique_ID = 150;
+        cv::RNG rng(it1->boxID);
+        cv::Scalar currColor = cv::Scalar(rng.uniform(0,num_unique_ID), rng.uniform(0,num_unique_ID), rng.uniform(0,num_unique_ID));
+
+        // Plot Lidar points into top view image
+        int top = 1e8, bottom = 0.0;
+        int left = 1e8, right = 0.0;
+        float x_world_min = 1e8, y_world_min = 1e8, y_world_max = -1e8;
+
+        for (auto it2 = it1->lidarPoints.begin(); it2 != it1->lidarPoints.end(); ++it2)
+        {
+            // World coordinates
+            float x_world = (*it2).x; // world position in m with x facing forward from sensor
+            float y_world = (*it2).y; // world position in m with y facing left from sensor
+            
+            // Find the real-world coordinate of the closest x direction and the width of the object in [m]
+            x_world_min = x_world_min < x_world ? x_world_min : x_world;
+            y_world_min = y_world_min < y_world ? y_world_min : y_world;
+            y_world_max = y_world_max > y_world ? y_world_max : y_world;
+
+            // Top view coordinates in [pixels]
+            int y = (-x_world * imageSize.height / worldSize.height) + imageSize.height;
+            int x = (-y_world * imageSize.height / worldSize.height) + imageSize.width / 2;
+
+            // Find enclosing rectangle
+            top     = y > top ? top : y;
+            bottom  = y < bottom ? bottom: y;
+            left    = x > left ? left : x;
+            // left    = x < left ? x: left;
+            right   = x < right ? right : x;
+            // right   = x > right ? x : right;
+
+            cv::circle(topviewImg, cv::Point(x, y), 4, currColor, -1);
+            
+        }
+
+        // Draw enclosing rectangle
+        cv::Scalar black = cv::Scalar(0, 0, 0);
+        cv::rectangle(topviewImg, cv::Point(left,top), cv::Point(right,bottom), black,2);
+
+        // Augment object with some key data
+        char str1[200], str2[200];
+        sprintf(str1, "id=%d, #pts=%d", it1->boxID, (int)it1->lidarPoints.size());
+        putText(topviewImg, str1, cv::Point2f(left-250, bottom+50), cv::FONT_ITALIC, 2, currColor);
+
+        sprintf(str2, "xmin=%2.2f m, yw=%2.2f m", x_world_min, y_world_max- y_world_min);
+        putText(topviewImg, str2, cv::Point2f(left-250, bottom+50+75), cv::FONT_ITALIC, 2, currColor);
+    }
+
+    // Plot distance markers
+    float lineSpacing = 2.0; // gap between distance markers
+    int nMarkers = floor(worldSize.height / lineSpacing);
+    const cv::Scalar blue = cv::Scalar(255, 0, 0);
+    for (size_t i = 0; i < nMarkers; ++i)
+    {
+        int y = (-(i * lineSpacing) * imageSize.height / worldSize.height) + imageSize.height;
+        cv::line(topviewImg, cv::Point(0, y), cv::Point(imageSize.width, y), blue);
+    }
+
+    // Display image
+    string windowName = "3D Objects";
+    cv::namedWindow(windowName, 1);
+    cv::imshow(windowName, topviewImg);
+    
+    if(bWait)
+        cv::waitKey(0); // wait for key to be pressed
 }
 
 void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<LidarPoint> &lidarPoints)
@@ -128,21 +210,33 @@ void runClustering()
 {
     // Read Lidar points and bounding boxes
     std::vector<LidarPoint> lidarPoints;
-    readLidarPts("../dat/C53A3_currLidarPts.dat", lidarPoints);
+    const char*  path_lidarPoints    = "../dat/C53A3_currLidarPts.dat";
+    readLidarPts(path_lidarPoints, lidarPoints);
+
     std::vector<BoundingBox> boundingBoxes;
-    readBoundingBoxes("../dat/C53A3_currBoundingBoxes.dat", boundingBoxes);
+    const char*  path_boundingBoxes  = "../dat/C53A3_currBoundingBoxes.dat";
+    readBoundingBoxes(path_boundingBoxes, boundingBoxes);
 
     // Group Lidar points to bounding boxes
     clusterLidarWithROI(boundingBoxes, lidarPoints);
 
+    // World size in [m] and image size in [px]
+    const cv::Size worldSize = cv::Size(10.0, 25.0);
+    const cv::Size imageSize = cv::Size(1000, 2000);
+
     // Display the isolated 3D objects in top view prospective
-    for (auto it = boundingBoxes.begin(); it != boundingBoxes.end(); ++it)
-    {
-        if (it->lidarPoints.size() > 0)
-        {
-            showLidarTopview(it->lidarPoints, cv::Size(10.0, 25.0), cv::Size(1000, 2000));
-        }
-    }
+    // for (auto it = boundingBoxes.begin(); it != boundingBoxes.end(); ++it)
+    // {
+    //     if (it->lidarPoints.size() > 0)
+    //     {
+    //         // Show Lidar top view
+    //         showLidarTopview(it->lidarPoints, worldSize, imageSize);
+    //     }
+    // }
+
+    // Show 3D objects
+    const bool bWait = true;
+    show3DObjects(boundingBoxes,worldSize,imageSize,bWait);
 }
 
 int main()
