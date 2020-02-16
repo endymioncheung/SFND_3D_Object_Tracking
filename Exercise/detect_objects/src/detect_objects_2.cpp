@@ -38,7 +38,9 @@ void detectObjects2()
     // generate 4D blob from input image
     cv::Mat blob;
     double scalefactor = 1/255.0;
-    cv::Size size = cv::Size(416, 416);
+    cv::Size size = cv::Size(416, 416); // Standard
+    // cv::Size size = cv::Size(320, 320); // Faster
+    // cv::Size size = cv::Size(608, 608); // More accurate
     cv::Scalar mean = cv::Scalar(0,0,0);
     bool swapRB = false;
     bool crop = false;
