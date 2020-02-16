@@ -12,9 +12,13 @@ using namespace std;
 
 void detectObjects2()
 {
-    // load image from file
-    cv::Mat img = cv::imread("../images/s_thrun.jpg");
+    // Start timer
+    double t = (double)cv::getTickCount();
 
+    // load image from file
+    cv::Mat img = cv::imread("../images/s_thrun.jpg"); // person and car
+    // cv::Mat img = cv::imread("../images/0000000000.png"); // car and truck
+    
     // load class names from file
     string yoloBasePath = "../dat/yolo/";
     string yoloClassesFile = yoloBasePath + "coco.names";
@@ -129,6 +133,10 @@ void detectObjects2()
         cv::putText(visImg, label, cv::Point(left, top), cv::FONT_ITALIC, 0.75, cv::Scalar(0, 0, 0), 1);
     }
 
+    // Stop the timer and print the execution time
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "Execution time to detect the objects = " << (t * 1000 / 1.0) << " ms" << endl;
+
     string windowName = "Object classification";
     cv::namedWindow( windowName, 1 );
     cv::imshow( windowName, visImg );
@@ -137,5 +145,5 @@ void detectObjects2()
 
 int main()
 {
-    detectObjects2();
+    detectObjects2();   
 }
