@@ -68,73 +68,85 @@ void showLidarTopview(std::vector<LidarPoint> &lidarPoints, cv::Size worldSize, 
     cv::waitKey(0); // wait for key to be pressed
 }
 
-
 void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<LidarPoint> &lidarPoints)
 {
-    // store calibration data in OpenCV matrices
+    // Store calibration data in OpenCV matrices
     cv::Mat P_rect_xx(3,4,cv::DataType<double>::type); // 3x4 projection matrix after rectification
     cv::Mat R_rect_xx(4,4,cv::DataType<double>::type); // 3x3 rectifying rotation to make image planes co-planar
     cv::Mat RT(4,4,cv::DataType<double>::type); // rotation matrix and translation vector
     loadCalibrationData(P_rect_xx, R_rect_xx, RT);
 
-    // loop over all Lidar points and associate them to a 2D bounding box
+    // Loop over all Lidar points and associate them to a 2D bounding box
     cv::Mat X(4, 1, cv::DataType<double>::type);
     cv::Mat Y(3, 1, cv::DataType<double>::type);
 
     for (auto it1 = lidarPoints.begin(); it1 != lidarPoints.end(); ++it1)
     {
-        // assemble vector for matrix-vector-multiplication
+        // Assemble vector for matrix-vector-multiplication
         X.at<double>(0, 0) = it1->x;
         X.at<double>(1, 0) = it1->y;
         X.at<double>(2, 0) = it1->z;
         X.at<double>(3, 0) = 1;
 
-        // project Lidar point into camera
+        // Project Lidar point into camera
         Y = P_rect_xx * R_rect_xx * RT * X;
         cv::Point pt;
-        pt.x = Y.at<double>(0, 0) / Y.at<double>(0, 2); // pixel coordinates
+        // Convert homogeneous coordinates to pixel coordinates
+        pt.x = Y.at<double>(0, 0) / Y.at<double>(0, 2);
         pt.y = Y.at<double>(1, 0) / Y.at<double>(0, 2);
 
         double shrinkFactor = 0.10;
-        vector<vector<BoundingBox>::iterator> enclosingBoxes; // pointers to all bounding boxes which enclose the current Lidar point
+        vector<vector<BoundingBox>::iterator> enclosingBoxes; // Pointers to all bounding boxes which enclose the current Lidar point
         for (vector<BoundingBox>::iterator it2 = boundingBoxes.begin(); it2 != boundingBoxes.end(); ++it2)
         {
-            // shrink current bounding box slightly to avoid having too many outlier points around the edges
+            // Shrink current bounding box slightly to avoid having too many outlier points around the edges
             cv::Rect smallerBox;
             smallerBox.x = (*it2).roi.x + shrinkFactor * (*it2).roi.width / 2.0;
             smallerBox.y = (*it2).roi.y + shrinkFactor * (*it2).roi.height / 2.0;
             smallerBox.width = (*it2).roi.width * (1 - shrinkFactor);
             smallerBox.height = (*it2).roi.height * (1 - shrinkFactor);
 
-            // check wether point is within current bounding box
+            // Check whether point is within current bounding box
             if (smallerBox.contains(pt))
             {
-                it2->lidarPoints.push_back(*it1);
-                lidarPoints.erase(it1);
-                it1--;
-                break;
+                // Add enclosing box to vector
+                enclosingBoxes.push_back(it2);
             }
-        } // eof loop over all bounding boxes
+        } // EOF loop over all bounding boxes
 
-    } // eof loop over all Lidar points
+        // Check whether point has been enclosed by one or multiple boxes
+        if (enclosingBoxes.size() == 1)
+        {
+            // Add Lidar point to bounding box
+            enclosingBoxes[0]->lidarPoints.push_back(*it1);
+        }
+
+    } // EOF loop over all Lidar points
 }
 
-int main()
+void runClustering()
 {
+    // Read Lidar points and bounding boxes
     std::vector<LidarPoint> lidarPoints;
     readLidarPts("../dat/C53A3_currLidarPts.dat", lidarPoints);
-
     std::vector<BoundingBox> boundingBoxes;
     readBoundingBoxes("../dat/C53A3_currBoundingBoxes.dat", boundingBoxes);
 
+    // Group Lidar points to bounding boxes
     clusterLidarWithROI(boundingBoxes, lidarPoints);
+
+    // Display the isolated 3D objects in top view prospective
     for (auto it = boundingBoxes.begin(); it != boundingBoxes.end(); ++it)
     {
         if (it->lidarPoints.size() > 0)
         {
             showLidarTopview(it->lidarPoints, cv::Size(10.0, 25.0), cv::Size(1000, 2000));
         }
-    }   
+    }
+}
 
+int main()
+{
+    runClustering();
     return 0;
 }
