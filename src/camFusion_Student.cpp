@@ -130,7 +130,7 @@ void show3DObjects(std::vector<BoundingBox> &boundingBoxes, cv::Size worldSize, 
 }
 
 
-// associate a given bounding box with the keypoints it contains
+// Associate a given bounding box with the keypoints it contains
 void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, std::vector<cv::DMatch> &kptMatches)
 {
     // ...
@@ -144,15 +144,93 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
     // ...
 }
 
-
+// Compute time-to-collision (TTC) based on
 void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
                      std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC)
 {
     // ...
 }
 
-
+// Matching bounding boxes
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
-    // ...
+    // Find which bounding boxes key points are enclosed both 
+    // on the previous and current frame by using the key of the std::multimap
+
+    // Placeholder for storing the bounding box ID for current and previous frame as multimap
+    multimap<int, int> mmap {};
+
+    // Highest bounding box ID in previous frame
+    int max_prev_boxID = 0;
+    for (auto match : matches)
+    {
+        // `cv::DMatch` has two relevant attributes: `queryIdx` and `trainIdx` indices
+        // which will be used to locate the keypoints in the previous frame using `queryIdx` 
+        // and current frame using `trainIdx`
+
+        // Get key points from current and past frame   
+        cv::KeyPoint prevKp = prevFrame.keypoints[match.queryIdx];
+        cv::KeyPoint currKp = currFrame.keypoints[match.trainIdx];
+        
+        // Set bounding box ID for both previous and current frame  
+        // as invalid index if no keypoints are found in the enclosed bounding box
+        int prev_boxID = -1;
+        int curr_boxID = -1;
+
+        // For each bounding box in the previous frame and current frame,
+        // update the bounding box ID if the keypoint is enclosed within region of interest (ROI)
+        for (auto bbox : prevFrame.boundingBoxes)
+        {
+            if (bbox.roi.contains(prevKp.pt))
+                prev_boxID = bbox.boxID;
+        }
+        max_prev_boxID = max_prev_boxID < prev_boxID ? 0: prev_boxID;
+
+        for (auto bbox : currFrame.boundingBoxes)
+        {
+            if (bbox.roi.contains(currKp.pt))
+                curr_boxID = bbox.boxID;
+        }
+        
+        // Save the bounding box ID of potential match candidates to multimap
+        // that allows mapping of potential multiple bounding boxes 
+        // in previous frame map to the same bounding box in current frame
+        mmap.insert({curr_boxID, prev_boxID});
+    }
+
+    // Create the list of bounding box IDs for current frame
+    // for constructing the best matching bounding box match pair `bbBestMatches`
+    vector<int> currFrameBoxIDs;
+    for (auto box : currFrame.boundingBoxes)
+        currFrameBoxIDs.push_back(box.boxID);
+
+    // Loop through each boxID in the current frame
+    // and get the most frequent value of the associated boxID for the previous frame
+    for (int currFrameBoxID : currFrameBoxIDs)
+    {
+        // Count the greatest number of matches in the multimap where each element is {key=curr_boxID, val=prev_boxID}
+        // Get all elements from the multimap that has the key value matches `currFrameBoxID`
+        auto prev_boxIDs_range = mmap.equal_range(currFrameBoxID);
+
+        // Initalize the counter of bounding boxes in previous frame with zeros
+        std::vector<int> prev_bbCounter(max_prev_boxID+1, 0);
+
+        // Loop through all the bounding boxes in the previous frame
+        // that matches to the bounding box in the current frame
+        for (auto it = prev_boxIDs_range.first; it != prev_boxIDs_range.second; ++it)
+        {
+            // Increment counter of matching bounding box in previous frame
+            // when the keypoint is within that bounding box
+            if (it->second != -1) 
+                prev_bbCounter[it->second] += 1;
+        }
+        
+        // Find the bounding box ID in previous frame with the highest number of keypoint correspondences
+        // (i.e. index of the bounding box in the previous frame that has the highest keypoint counts)
+        int prevFrameBoxID = distance(prev_bbCounter.begin(), max_element(prev_bbCounter.begin(), prev_bbCounter.end()));
+
+        // Insert the best matching bounding box pair {prevFrameBoxID, currFrameBoxID}
+        // for each bounding box in current frame
+        bbBestMatches.insert({prevFrameBoxID, currFrameBoxID});
+    }
 }
