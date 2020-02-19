@@ -236,26 +236,32 @@ int main(int argc, const char *argv[])
             /* COMPUTE TTC ON OBJECT IN FRONT */
 
             // Loop over all BB match pairs
+            // For each bounding box in current data frame
             for (auto it1 = (dataBuffer.end() - 1)->bbMatches.begin(); it1 != (dataBuffer.end() - 1)->bbMatches.end(); ++it1)
             {
                 // Find bounding boxes associates with current match
                 BoundingBox *prevBB, *currBB;
+
+                // For each bounding box in current frame
                 for (auto it2 = (dataBuffer.end() - 1)->boundingBoxes.begin(); it2 != (dataBuffer.end() - 1)->boundingBoxes.end(); ++it2)
                 {
-                    // Check whether current match partner corresponds to this BB 
+                    // Check whether previous match partner corresponds to this BB 
                     // in the current frame
                     if (it1->second == it2->boxID)
                     {
+                        // Pointer to a bounding box in current frame
                         currBB = &(*it2);
                     }
                 }
 
+                // For each bounding box in previous frame
                 for (auto it2 = (dataBuffer.end() - 2)->boundingBoxes.begin(); it2 != (dataBuffer.end() - 2)->boundingBoxes.end(); ++it2)
                 {
                     // Check whether current match partner corresponds to this BB
                     // in the previous frame
                     if (it1->first == it2->boxID)
                     {
+                        // Pointer to a bounding box in previous frame
                         prevBB = &(*it2);
                     }
                 }
