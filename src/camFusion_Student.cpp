@@ -184,7 +184,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
             if (bbox.roi.contains(prevKp.pt))
                 prev_boxID = bbox.boxID;
         }
-        max_prev_boxID = max_prev_boxID < prev_boxID ? 0: prev_boxID;
+        max_prev_boxID = prev_boxID > max_prev_boxID ? prev_boxID : max_prev_boxID;
 
         for (auto bbox : currFrame.boundingBoxes)
         {
