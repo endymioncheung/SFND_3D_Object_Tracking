@@ -27,6 +27,9 @@ int main(int argc, const char *argv[])
 {
     /* INIT VARIABLES AND DATA STRUCTURES */
 
+    // Results of Lidar and Camera based TTC
+    vector<double> results_ttcLidar, results_ttcCamera;
+
     // Data location
     string dataPath = "../";
 
@@ -98,8 +101,8 @@ int main(int argc, const char *argv[])
 
         /* DETECT & CLASSIFY OBJECTS */
 
-        float confThreshold = 0.2;  // confident threshold
-        float nmsThreshold = 0.4;   // non maximum suppression threshold
+        float confThreshold = 0.2;  // confident threshold [0..1]
+        float nmsThreshold = 0.4;   // non maximum suppression threshold [0..1]
         // YOLO object detection
         detectObjects((dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->boundingBoxes, confThreshold, nmsThreshold,
                       yoloBasePath, yoloClassesFile, yoloModelConfiguration, yoloModelWeights, bVis);
@@ -114,13 +117,16 @@ int main(int argc, const char *argv[])
         std::vector<LidarPoint> lidarPoints;
         loadLidarFromFile(lidarPoints, lidarFullFilename);
 
-        // Remove Lidar points based on distance properties [in m]
+        // Remove Lidar points based on distance properties in [m]
         float minZ = -1.5, maxZ = -0.9; // slightly above ground surface
         float minX = 2.0, maxX = 20.0;  // front and rear of the ego car
         float maxY = 2.0;               // focus on ego lane
         float minR = 0.1;               // minimum reflectivity [0..1]; 1 = highest reflectivity
-        cropLidarPoints(lidarPoints, minX, maxX, maxY, minZ, maxZ, minR);
+        float maxR = 1.0;               // maximum reflectivity [0..1]; 1 = highest reflectivity
+        cropLidarPoints(lidarPoints, minX, maxX, maxY, minZ, maxZ, minR, maxR);
+        cropLidarPointsEgoLane(lidarPoints);
     
+        // Update the filtered Lidar points in the current frame
         (dataBuffer.end() - 1)->lidarPoints = lidarPoints;
 
         cout << "#3 : CROP LIDAR POINTS done" << endl;
@@ -133,10 +139,11 @@ int main(int argc, const char *argv[])
         clusterLidarWithROI((dataBuffer.end()-1)->boundingBoxes, (dataBuffer.end() - 1)->lidarPoints, shrinkFactor, P_rect_00, R_rect_00, RT);
 
         // Visualize 3D objects
-        bVis = true;
+        bVis = false;
         if(bVis)
         {
-            show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(4.0, 20.0), cv::Size(1500, 2000), false);
+            bool bWait = true;
+            show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(4.0, 20.0), cv::Size(1000, 2000), bWait);
         }
         bVis = false;
 
@@ -270,6 +277,10 @@ int main(int argc, const char *argv[])
                 // Only compute TTC if we have Lidar points
                 if( currBB->lidarPoints.size()>0 && prevBB->lidarPoints.size()>0 )
                 {
+                    // Remove the Lidar points outliers below the bumper
+                    cropLidarPointsAboveBumper(prevBB->lidarPoints);
+                    cropLidarPointsAboveBumper(currBB->lidarPoints);
+
                     //// STUDENT ASSIGNMENT
                     //// TASK FP.2 -> Compute time-to-collision based on Lidar data (implement -> computeTTCLidar)
                     double ttcLidar; 
@@ -298,7 +309,6 @@ int main(int argc, const char *argv[])
                         char str[200];
                         sprintf(str, "TTC Lidar : %f s, TTC Camera : %f s", ttcLidar, ttcCamera);
                         putText(visImg, str, cv::Point2f(80, 50), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0,0,255));
-
                         string windowName = "Final Results : TTC";
                         cv::namedWindow(windowName, 4);
                         cv::imshow(windowName, visImg);
@@ -307,10 +317,20 @@ int main(int argc, const char *argv[])
                     }
                     bVis = false;
 
+                    // Store the TTC results for each frame
+                    results_ttcLidar.push_back(ttcLidar);
+                    results_ttcCamera.push_back(ttcCamera);
                 } // EOF TTC computation
             } // EOF loop over all BB matches
         }
     } // EOF loop over all images
-
+    
+    bool bPrintTTC = true;
+    if (bPrintTTC)
+    {
+        for (int i = 0; i < results_ttcLidar.size(); i++)
+            cout << "Image #" << i << " - TTC Lidar : " << results_ttcLidar[i]
+            << ", TTC Camera : " << results_ttcCamera[i] << endl;
+    }
     return 0;
 }

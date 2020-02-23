@@ -50,7 +50,7 @@ void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<Li
 
         } // eof loop over all bounding boxes
 
-        // check wether point has been enclosed by one or by multiple boxes
+        // check whether point has been enclosed by one or by multiple boxes
         if (enclosingBoxes.size() == 1)
         { 
             // add Lidar point to bounding box
@@ -231,40 +231,46 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
     double medDistRatio = distRatios.size() % 2 == 0 ? (distRatios[medIndex - 1] + distRatios[medIndex]) / 2.0 : distRatios[medIndex];
 
     // Compute camera-based TTC from distance ratios
-    double dT = 1 / frameRate;
+    double dT = 1.0 / frameRate;
     TTC = -dT / (1 - medDistRatio);
 }
 
-// Compute time-to-collision (TTC) based on
+// Sort Lidar points along x-axis
+void sortLidar_X(std::vector<LidarPoint> &lidarPoints)
+{
+    sort(lidarPoints.begin(), lidarPoints.end(), [](LidarPoint a, LidarPoint b){return a.x < b.x;});
+}
+
+// Compute time-to-collision (TTC) based on Lidar measurements alone
 void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
                      std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC)
 {
-    // Auxiliary variables
-    const double dT = 0.1;        // Time between two measurements in seconds
-    const double laneWidth = 4.0; // Assumed width of the ego lane
+    // Sort Lidar points in previous and current frame 
+    // along x-axis in ascending order
+    sortLidar_X(lidarPointsPrev);
+    sortLidar_X(lidarPointsCurr);
 
-    // Find closest distance to Lidar points within ego lane
-    double minXPrev = 1e9, minXCurr = 1e9;
-    for (auto it = lidarPointsPrev.begin(); it != lidarPointsPrev.end(); ++it)
-    {
-        if (abs(it->y) <= laneWidth / 2.0)
-        { 
-            // Only considered the 3D point within ego lane
-            minXPrev = minXPrev > it->x ? it->x : minXPrev;
-        }
-    }
+    // Compute TTC using median of the Lidar points along x-axis 
+    double d0 = lidarPointsPrev[lidarPointsPrev.size()/2].x;
+    double d1 = lidarPointsCurr[lidarPointsCurr.size()/2].x;
+    TTC = d1 * (1.0 / frameRate) / (d0 - d1);
+    
+    // Simple Method to calculate the time to collision based on the
+    // closest distance to 3D Lidar points within ego car lane
+    // in the previous and current frame
 
-    for (auto it = lidarPointsCurr.begin(); it != lidarPointsCurr.end(); ++it)
-    {
-        if (abs(it->y) <= laneWidth / 2.0)
-        { 
-            // Only considered the 3D point within ego lane
-            minXCurr = minXCurr > it->x ? it->x : minXCurr;
-        }
-    }
+    // const double laneWidth = 4.0; // Assumed road lane width [m]
+    // double minXPrev = 1e9, minXCurr = 1e9;;
+    // for (auto it = lidarPointsPrev.begin(); it != lidarPointsPrev.end(); ++it)
+    //     if (abs(it->y) <= laneWidth / 2.0)
+    //         minXPrev = min(minXPrev,it->x);
+    // for (auto it = lidarPointsCurr.begin(); it != lidarPointsCurr.end(); ++it)
+    //     if (abs(it->y) <= laneWidth / 2.0)
+    //         minXCurr = min(minXCurr,it->x);
 
     // Compute TTC from both measurements
-    TTC = minXCurr * dT / (minXPrev - minXCurr);
+    // const double dT = 1.0 / frameRate; // Time between two measurements [s]
+    // TTC = minXCurr * dT / (minXPrev - minXCurr);
 }
 
 // Matching bounding boxes
@@ -276,7 +282,6 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
     // Placeholder for storing the bounding box ID for current and previous frame as multimap
     multimap<int, int> mmap {};
 
-    // Highest bounding box ID in previous frame
     int max_prev_boxID = 0;
     for (auto match : matches)
     {
@@ -300,7 +305,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
             if (bbox.roi.contains(kptPrev.pt))
                 prev_boxID = bbox.boxID;
         }
-        max_prev_boxID = prev_boxID > max_prev_boxID ? prev_boxID : max_prev_boxID;
+        max_prev_boxID = max(prev_boxID,max_prev_boxID);
 
         for (auto bbox : currFrame.boundingBoxes)
         {
@@ -314,17 +319,16 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         mmap.insert({curr_boxID, prev_boxID});
     }
 
-    // Create the list of bounding box IDs for current frame
+    // Create the list of bounding box IDs for current frame, which will be used
     // for constructing the best matching bounding box match pair `bbBestMatches`
     vector<int> currFrameBoxIDs;
     for (auto box : currFrame.boundingBoxes)
         currFrameBoxIDs.push_back(box.boxID);
 
     // Loop through each boxID in the current frame
-    // and get the most frequent value of the associated boxID for the previous frame
+    // and get associated boxID for the previous frame that has the highest counts
     for (int currFrameBoxID : currFrameBoxIDs)
     {
-        // Count the greatest number of matches in the multimap where each element is {key=curr_boxID, val=prev_boxID}
         // Get all elements from the multimap that has the key value matches `currFrameBoxID`
         auto prev_boxIDs_range = mmap.equal_range(currFrameBoxID);
 

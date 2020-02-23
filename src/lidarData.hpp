@@ -8,7 +8,9 @@
 
 #include "dataStructures.h"
 
-void cropLidarPoints(std::vector<LidarPoint> &lidarPoints, float minX, float maxX, float maxY, float minZ, float maxZ, float minR);
+void cropLidarPoints(std::vector<LidarPoint> &lidarPoints, float minX, float maxX, float maxY, float minZ, float maxZ, float minR, float maxR);
+void cropLidarPointsEgoLane(std::vector<LidarPoint> &lidarPoints);
+void cropLidarPointsAboveBumper(std::vector<LidarPoint> &lidarPoints);
 void loadLidarFromFile(std::vector<LidarPoint> &lidarPoints, std::string filename);
 
 void showLidarTopview(std::vector<LidarPoint> &lidarPoints, cv::Size worldSize, cv::Size imageSize, bool bWait=true);
