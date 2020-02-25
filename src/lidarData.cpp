@@ -27,10 +27,9 @@ void cropLidarPoints(std::vector<LidarPoint> &lidarPoints, float minX, float max
 }
 
 // Crop Lidar points for the ego lane
-void cropLidarPointsEgoLane(std::vector<LidarPoint> &lidarPoints)
+void cropLidarPointsEgoLane(std::vector<LidarPoint> &lidarPoints, double laneWidth)
 {    
-    const double laneWidth = 4.0; // Assumed road lane width [m]
-    std::vector<LidarPoint> newLidarPts;
+    vector<LidarPoint> newLidarPts;
     for(auto it=lidarPoints.begin(); it!=lidarPoints.end(); ++it)
     {
         if (abs(it->z) <= laneWidth / 2.0)
@@ -43,6 +42,10 @@ void cropLidarPointsEgoLane(std::vector<LidarPoint> &lidarPoints)
 // Crop Lidar points above the bumper
 void cropLidarPointsAboveBumper(std::vector<LidarPoint> &lidarPoints)
 {
+    // Percentage of Lidar poitns to be ignored 
+    // that are below the lower portion of the bumper 
+    const double pct_lowerBumper = 0.15;
+
     // Find the local min and max Z-value of Lidar point clouds
     double maxZ = -1;
     double minZ = 1e8;
@@ -52,12 +55,12 @@ void cropLidarPointsAboveBumper(std::vector<LidarPoint> &lidarPoints)
         minZ = min((*it).z,minZ);
     }
 
-    double above_bumper_Z = (maxZ - minZ)*0.15 + minZ;
+    double above_bumper_Z = (maxZ - minZ)*pct_lowerBumper + minZ;
     // cout << "maxZ : " << maxZ << endl;
     // cout << "minZ : " << minZ << endl;
     // cout << "above_bumper_Z : " << above_bumper_Z << endl;
 
-    std::vector<LidarPoint> newLidarPts;
+    vector<LidarPoint> newLidarPts;
     for(auto it=lidarPoints.begin(); it!=lidarPoints.end(); ++it)
     {
         if ((*it).z >= above_bumper_Z)
