@@ -1,0 +1,207 @@
+
+-------------------------------------
+Camera Object detection configuration
+-------------------------------------
+- Detector   = AKAZE
+- Descriptor = ORB
+- Matcher    = MAT_BF
+- Selector   = SEL_NN
+
+Processing frame index from 0 to 50 every 1 frame(s)
+
+Detecting preceding vehicle in Frame  #0...
+Detecting preceding vehicle in Frame  #1...found 102 matches within ROI
+Detecting preceding vehicle in Frame  #2...found 109 matches within ROI
+Detecting preceding vehicle in Frame  #3...found 121 matches within ROI
+Detecting preceding vehicle in Frame  #4...found 110 matches within ROI
+Detecting preceding vehicle in Frame  #5...found 107 matches within ROI
+Detecting preceding vehicle in Frame  #6...found 109 matches within ROI
+Detecting preceding vehicle in Frame  #7...found 127 matches within ROI
+Detecting preceding vehicle in Frame  #8...found 122 matches within ROI
+Detecting preceding vehicle in Frame  #9...found 120 matches within ROI
+Detecting preceding vehicle in Frame #10...found 136 matches within ROI
+Detecting preceding vehicle in Frame #11...found 118 matches within ROI
+Detecting preceding vehicle in Frame #12...found 127 matches within ROI
+Detecting preceding vehicle in Frame #13...found 121 matches within ROI
+Detecting preceding vehicle in Frame #14...found 130 matches within ROI
+Detecting preceding vehicle in Frame #15...found 119 matches within ROI
+Detecting preceding vehicle in Frame #16...found 129 matches within ROI
+Detecting preceding vehicle in Frame #17...found 125 matches within ROI
+Detecting preceding vehicle in Frame #18...found 118 matches within ROI
+Detecting preceding vehicle in Frame #19...found 128 matches within ROI
+Detecting preceding vehicle in Frame #20...found 127 matches within ROI
+Detecting preceding vehicle in Frame #21...found 123 matches within ROI
+Detecting preceding vehicle in Frame #22...found 141 matches within ROI
+Detecting preceding vehicle in Frame #23...found 149 matches within ROI
+Detecting preceding vehicle in Frame #24...found 160 matches within ROI
+Detecting preceding vehicle in Frame #25...found 149 matches within ROI
+Detecting preceding vehicle in Frame #26...found 158 matches within ROI
+Detecting preceding vehicle in Frame #27...found 173 matches within ROI
+Detecting preceding vehicle in Frame #28...found 162 matches within ROI
+Detecting preceding vehicle in Frame #29...found 154 matches within ROI
+Detecting preceding vehicle in Frame #30...found 149 matches within ROI
+Detecting preceding vehicle in Frame #31...found 162 matches within ROI
+Detecting preceding vehicle in Frame #32...found 166 matches within ROI
+Detecting preceding vehicle in Frame #33...found 166 matches within ROI
+Detecting preceding vehicle in Frame #34...found 157 matches within ROI
+Detecting preceding vehicle in Frame #35...found 152 matches within ROI
+Detecting preceding vehicle in Frame #36...found 142 matches within ROI
+Detecting preceding vehicle in Frame #37...found 139 matches within ROI
+Detecting preceding vehicle in Frame #38...found 198 matches within ROI
+Detecting preceding vehicle in Frame #39...found 210 matches within ROI
+Detecting preceding vehicle in Frame #40...found 207 matches within ROI
+Detecting preceding vehicle in Frame #41...found 210 matches within ROI
+Detecting preceding vehicle in Frame #42...found 205 matches within ROI
+Detecting preceding vehicle in Frame #43...found 200 matches within ROI
+Detecting preceding vehicle in Frame #44...found 204 matches within ROI
+Detecting preceding vehicle in Frame #45...found 199 matches within ROI
+Detecting preceding vehicle in Frame #46...found 200 matches within ROI
+Detecting preceding vehicle in Frame #47...found 207 matches within ROI
+Detecting preceding vehicle in Frame #48...found 190 matches within ROI
+found 244 matches within ROI
+Detecting preceding vehicle in Frame #49...found 213 matches within ROI
+found 235 matches within ROI
+Detecting preceding vehicle in Frame #50...found 214 matches within ROI
+found 238 matches within ROI
+
+-------------------------------------------------------------
+               Statistics for Lidar points             
+-------------------------------------------------------------
+Number of Lidar points detected: [avg,min,max]: [389,  1,634]
+
+
+-----------------------------------------------------------------------------
+ Time-To-Collision (TTC) frame analysis 
+ TTC calculation updates every 0.1 s
+
+ * indicates if the TTC is negative or it is 10% greater than the last frame
+-----------------------------------------------------------------------------
+Frame #   1 -  TTC Lidar: 12.972159s,  TTC Camera : 13.402956s   Est. error: 3%
+Frame #   2 -  TTC Lidar: 12.264038s,  TTC Camera : 14.289965s   Est. error: 15%
+Frame #   3 - *TTC Lidar: 13.916132s,  TTC Camera : 13.789529s   Est. error: 1%
+Frame #   4 -  TTC Lidar:  7.115722s,  TTC Camera : 14.783032s   Est. error: 70%
+Frame #   5 - *TTC Lidar: 16.251088s,  TTC Camera : 16.057552s   Est. error: 1%
+Frame #   6 -  TTC Lidar: 12.421338s,  TTC Camera : 13.890458s   Est. error: 11%
+Frame #   7 - *TTC Lidar: 34.340420s, *TTC Camera : 15.605360s   Est. error: 75%
+Frame #   8 -  TTC Lidar:  9.343759s,  TTC Camera : 14.255249s   Est. error: 42%
+Frame #   9 - *TTC Lidar: 18.131756s,  TTC Camera : 13.665328s   Est. error: 28%
+Frame #  10 -  TTC Lidar: 18.031756s,  TTC Camera : 11.331379s   Est. error: 46%
+Frame #  11 -  TTC Lidar:  3.832443s,  TTC Camera : 12.367197s   Est. error: 105%
+Frame #  12 - *TTC Lidar: -10.853745s,  TTC Camera : 12.145637s   Est. error: 3561%
+Frame #  13 - *TTC Lidar:  9.223069s,  TTC Camera : 10.830024s   Est. error: 16%
+Frame #  14 - *TTC Lidar: 10.967763s,  TTC Camera : 10.459322s   Est. error: 5%
+Frame #  15 -  TTC Lidar:  8.094218s,  TTC Camera :  9.797382s   Est. error: 19%
+Frame #  16 -  TTC Lidar:  3.175354s,  TTC Camera : 10.218116s   Est. error: 105%
+Frame #  17 - *TTC Lidar: -9.994236s,  TTC Camera :  8.703067s   Est. error: 2896%
+Frame #  18 - *TTC Lidar:  8.309779s,  TTC Camera :  8.920069s   Est. error: 7%
+Frame #  19 -  TTC Lidar:  7.643156s,  TTC Camera :  9.523541s   Est. error: 22%
+Frame #  20 -  TTC Lidar:  4.506852s,  TTC Camera :  8.963309s   Est. error: 66%
+Frame #  21 - *TTC Lidar:  5.572428s,  TTC Camera :  9.216095s   Est. error: 49%
+Frame #  22 - *TTC Lidar:  9.693871s,  TTC Camera :  8.239129s   Est. error: 16%
+Frame #  23 -  TTC Lidar:  8.430688s,  TTC Camera :  8.638720s   Est. error: 2%
+Frame #  24 -  TTC Lidar:  6.925544s,  TTC Camera :  8.843494s   Est. error: 24%
+Frame #  25 -  TTC Lidar:  7.147677s,  TTC Camera :  9.583631s   Est. error: 29%
+Frame #  26 - *TTC Lidar:  9.977070s, *TTC Camera : 11.298542s   Est. error: 12%
+Frame #  27 -  TTC Lidar:  7.059997s,  TTC Camera : 11.183295s   Est. error: 45%
+Frame #  28 - *TTC Lidar: 12.668104s,  TTC Camera :  9.868241s   Est. error: 25%
+Frame #  29 -  TTC Lidar:  2.656480s,  TTC Camera : 10.037155s   Est. error: 116%
+Frame #  30 - *TTC Lidar: -10.532669s,  TTC Camera : 10.484635s   Est. error: 87510%
+Frame #  31 - *TTC Lidar:  3.327808s, *TTC Camera : 11.643539s   Est. error: 111%
+Frame #  32 - *TTC Lidar: 22.395914s,  TTC Camera : 11.921112s   Est. error: 61%
+Frame #  33 - *TTC Lidar: -19.407026s,  TTC Camera : 11.865137s   Est. error: 829%
+Frame #  34 - *TTC Lidar:  7.609594s,  TTC Camera :  9.346587s   Est. error: 20%
+Frame #  35 -  TTC Lidar:  6.592795s,  TTC Camera :  8.851506s   Est. error: 29%
+Frame #  36 - *TTC Lidar: 10.629387s,  TTC Camera :  7.819561s   Est. error: 30%
+Frame #  37 -  TTC Lidar:  3.466449s,  TTC Camera :  7.671687s   Est. error: 76%
+Frame #  38 - *TTC Lidar: 12.751254s, *TTC Camera :  9.437254s   Est. error: 30%
+Frame #  39 -  TTC Lidar:  6.434967s, *TTC Camera : 10.453565s   Est. error: 48%
+Frame #  40 -  TTC Lidar:  5.207236s,  TTC Camera :  8.566549s   Est. error: 49%
+Frame #  41 -  TTC Lidar:  5.161448s, *TTC Camera : 10.292603s   Est. error: 66%
+Frame #  42 - *TTC Lidar:  5.869901s,  TTC Camera :  7.886538s   Est. error: 29%
+Frame #  43 - *TTC Lidar: 14.229245s,  TTC Camera :  8.327708s   Est. error: 52%
+Frame #  44 -  TTC Lidar:  4.738004s, *TTC Camera : 10.915974s   Est. error: 79%
+Frame #  45 -  TTC Lidar:  4.455765s,  TTC Camera :  8.763087s   Est. error: 65%
+Frame #  46 - *TTC Lidar:  9.357184s, *TTC Camera : 10.764803s   Est. error: 14%
+Frame #  47 -  TTC Lidar:  6.953840s,  TTC Camera : 10.423816s   Est. error: 40%
+Frame #  48 - *TTC Lidar: 14.966561s, *TTC Camera : 12.799152s   Est. error: 16%
+Frame #  49 -  TTC Lidar:  6.471237s, *TTC Camera : -10.057694s   Est. error: 922%
+Frame #  50 - *TTC Lidar: -149.753719s, *TTC Camera : 15.775638s   Est. error: 247%
+Frame #  51 - *TTC Lidar: 16.189764s, *TTC Camera : -10.144392s   Est. error: 871%
+Frame #  52 -  TTC Lidar:  4.580199s, *TTC Camera : 18.948772s   Est. error: 122%
+Frame #  53 - *TTC Lidar: 10.106521s, *TTC Camera : -10.045800s   Est. error: 66376%
+
+----------------------------------------
+  Time-To-Collision (TTC) CSV format    
+----------------------------------------
+  0,   12.9722, 13.403
+  1,    12.264, 14.29
+  2,   13.9161, 13.7895
+  3,   7.11572, 14.783
+  4,   16.2511, 16.0576
+  5,   12.4213, 13.8905
+  6,   34.3404, 15.6054
+  7,   9.34376, 14.2552
+  8,   18.1318, 13.6653
+  9,   18.0318, 11.3314
+ 10,   3.83244, 12.3672
+ 11,  -10.8537, 12.1456
+ 12,   9.22307, 10.83
+ 13,   10.9678, 10.4593
+ 14,   8.09422, 9.79738
+ 15,   3.17535, 10.2181
+ 16,  -9.99424, 8.70307
+ 17,   8.30978, 8.92007
+ 18,   7.64316, 9.52354
+ 19,   4.50685, 8.96331
+ 20,   5.57243, 9.2161
+ 21,   9.69387, 8.23913
+ 22,   8.43069, 8.63872
+ 23,   6.92554, 8.84349
+ 24,   7.14768, 9.58363
+ 25,   9.97707, 11.2985
+ 26,      7.06, 11.1833
+ 27,   12.6681, 9.86824
+ 28,   2.65648, 10.0372
+ 29,  -10.5327, 10.4846
+ 30,   3.32781, 11.6435
+ 31,   22.3959, 11.9211
+ 32,   -19.407, 11.8651
+ 33,   7.60959, 9.34659
+ 34,   6.59279, 8.85151
+ 35,   10.6294, 7.81956
+ 36,   3.46645, 7.67169
+ 37,   12.7513, 9.43725
+ 38,   6.43497, 10.4536
+ 39,   5.20724, 8.56655
+ 40,   5.16145, 10.2926
+ 41,    5.8699, 7.88654
+ 42,   14.2292, 8.32771
+ 43,     4.738, 10.916
+ 44,   4.45577, 8.76309
+ 45,   9.35718, 10.7648
+ 46,   6.95384, 10.4238
+ 47,   14.9666, 12.7992
+ 48,   6.47124, -10.0577
+ 49,  -149.754, 15.7756
+ 50,   16.1898, -10.1444
+ 51,    4.5802, 18.9488
+ 52,   10.1065, -10.0458
+
+-----------------------------------------------------
+   Statistics for keypoint detections and matching   
+-----------------------------------------------------
+Detections found [avg,min,max]: [1452, 1407, 1496]
+Matches    found [avg,min,max]: [ 158,  102,  244]
+
+-----------------------------------------------------
+             Statistics for execution time           
+-----------------------------------------------------
+Keypoints detection time [s]    [avg,min,max]: [0.0519435,  0.039558, 0.0816001]
+Descriptors extraction time [s] [avg,min,max]: [0.00860593, 0.00595733,  0.013691]
+Descriptors matching time [s]   [avg,min,max]: [0.00767471, 0.00642804,  0.009676]
+
+-----------------------------------------------------
+    Keypoint detections and matching CSV format      
+ Detector type, Descriptor type, Matcher type, Selector type, avg/min/max detection, avg/min/max matches, avg/min/max detection time, avg/min/max matching time
+-----------------------------------------------------
+AKAZE, ORB, MAT_BF, SEL_NN, 1452, 1407, 1496, 158, 102, 244, 0.0519435, 0.039558, 0.0816001, 0.00860593, 0.00595733, 0.013691, 0.00767471, 0.00642804, 0.009676

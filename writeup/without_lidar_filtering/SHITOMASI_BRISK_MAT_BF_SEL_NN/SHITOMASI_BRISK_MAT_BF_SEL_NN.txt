@@ -1,0 +1,102 @@
+
+-------------------------------------
+Camera Object detection configuration
+-------------------------------------
+- Detector   = SHITOMASI
+- Descriptor = BRISK
+- Matcher    = MAT_BF
+- Selector   = SEL_NN
+
+Processing frame index from 0 to 18 every 1 frame(s)
+
+Detecting preceding vehicle in Frame  #0...
+Detecting preceding vehicle in Frame  #1...found 164 matches within ROI
+Detecting preceding vehicle in Frame  #2...found 152 matches within ROI
+Detecting preceding vehicle in Frame  #3...found 168 matches within ROI
+Detecting preceding vehicle in Frame  #4...found 168 matches within ROI
+Detecting preceding vehicle in Frame  #5...found 182 matches within ROI
+Detecting preceding vehicle in Frame  #6...found 180 matches within ROI
+Detecting preceding vehicle in Frame  #7...found 182 matches within ROI
+Detecting preceding vehicle in Frame  #8...found 174 matches within ROI
+Detecting preceding vehicle in Frame  #9...found 170 matches within ROI
+Detecting preceding vehicle in Frame #10...found 170 matches within ROI
+Detecting preceding vehicle in Frame #11...found 164 matches within ROI
+Detecting preceding vehicle in Frame #12...found 174 matches within ROI
+Detecting preceding vehicle in Frame #13...found 190 matches within ROI
+Detecting preceding vehicle in Frame #14...found 172 matches within ROI
+Detecting preceding vehicle in Frame #15...found 166 matches within ROI
+Detecting preceding vehicle in Frame #16...found 188 matches within ROI
+Detecting preceding vehicle in Frame #17...found 168 matches within ROI
+Detecting preceding vehicle in Frame #18...found 176 matches within ROI
+
+-------------------------------------------------------------
+               Statistics for Lidar points             
+-------------------------------------------------------------
+Number of Lidar points detected: [avg,min,max]: [307,273,345]
+
+
+-----------------------------------------------------------------------------
+ Time-To-Collision (TTC) frame analysis 
+ TTC calculation updates every 0.1 s
+
+ * indicates if the TTC is negative or it is 10% greater than the last frame
+-----------------------------------------------------------------------------
+Frame #   1 -  TTC Lidar: 12.972159s,  TTC Camera : 15.558137s   Est. error: 18%
+Frame #   2 -  TTC Lidar: 12.264038s,  TTC Camera : 12.723171s   Est. error: 4%
+Frame #   3 - *TTC Lidar: 13.916132s,  TTC Camera : 13.766165s   Est. error: 1%
+Frame #   4 -  TTC Lidar:  7.115722s,  TTC Camera : 13.788001s   Est. error: 64%
+Frame #   5 - *TTC Lidar: 16.251088s,  TTC Camera : 12.853594s   Est. error: 23%
+Frame #   6 -  TTC Lidar: 12.421338s,  TTC Camera : 11.456155s   Est. error: 8%
+Frame #   7 - *TTC Lidar: 34.340420s, *TTC Camera : 12.900000s   Est. error: 91%
+Frame #   8 -  TTC Lidar:  9.343759s,  TTC Camera : 13.973328s   Est. error: 40%
+Frame #   9 - *TTC Lidar: 18.131756s,  TTC Camera : 12.208349s   Est. error: 39%
+Frame #  10 -  TTC Lidar: 18.031756s, *TTC Camera : 57.215290s   Est. error: 104%
+Frame #  11 -  TTC Lidar:  3.832443s,  TTC Camera : 12.720452s   Est. error: 107%
+Frame #  12 - *TTC Lidar: -10.853745s,  TTC Camera : 11.785461s   Est. error: 4860%
+Frame #  13 - *TTC Lidar:  9.223069s,  TTC Camera : 11.400004s   Est. error: 21%
+Frame #  14 - *TTC Lidar: 10.967763s,  TTC Camera : 12.008644s   Est. error: 9%
+Frame #  15 -  TTC Lidar:  8.094218s,  TTC Camera : 10.422411s   Est. error: 25%
+Frame #  16 -  TTC Lidar:  3.175354s, *TTC Camera : 11.581443s   Est. error: 114%
+Frame #  17 - *TTC Lidar: -9.994236s,  TTC Camera :  9.566632s   Est. error: 9149%
+Frame #  18 - *TTC Lidar:  8.309779s,  TTC Camera :  9.762667s   Est. error: 16%
+
+----------------------------------------
+  Time-To-Collision (TTC) CSV format    
+----------------------------------------
+  0,   12.9722, 15.5581
+  1,    12.264, 12.7232
+  2,   13.9161, 13.7662
+  3,   7.11572, 13.788
+  4,   16.2511, 12.8536
+  5,   12.4213, 11.4562
+  6,   34.3404, 12.9
+  7,   9.34376, 13.9733
+  8,   18.1318, 12.2083
+  9,   18.0318, 57.2153
+ 10,   3.83244, 12.7205
+ 11,  -10.8537, 11.7855
+ 12,   9.22307, 11.4
+ 13,   10.9678, 12.0086
+ 14,   8.09422, 10.4224
+ 15,   3.17535, 11.5814
+ 16,  -9.99424, 9.56663
+ 17,   8.30978, 9.76267
+
+-----------------------------------------------------
+   Statistics for keypoint detections and matching   
+-----------------------------------------------------
+Detections found [avg,min,max]: [3754, 3446, 4114]
+Matches    found [avg,min,max]: [ 173,  152,  190]
+
+-----------------------------------------------------
+             Statistics for execution time           
+-----------------------------------------------------
+Keypoints detection time [s]    [avg,min,max]: [0.0248215, 0.0195376,  0.032634]
+Descriptors extraction time [s] [avg,min,max]: [0.0321241,  0.027232, 0.0398039]
+Descriptors matching time [s]   [avg,min,max]: [0.0482313, 0.0387588, 0.0586855]
+
+-----------------------------------------------------
+    Keypoint detections and matching CSV format      
+ Detector type, Descriptor type, Matcher type, Selector type, avg/min/max detection, avg/min/max matches, avg/min/max detection time, avg/min/max matching time
+-----------------------------------------------------
+SHITOMASI, BRISK, MAT_BF, SEL_NN, 3754, 3446, 4114, 173, 152, 190, 0.0248215, 0.0195376, 0.032634, 0.0321241, 0.027232, 0.0398039, 0.0482313, 0.0387588, 0.0586855
