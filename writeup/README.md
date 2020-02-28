@@ -101,8 +101,8 @@ Frame #  17 - *TTC Lidar: -9.994236s,  TTC Camera :  8.703067s   Est. error: 289
 Frame #  18 - *TTC Lidar:  8.309779s,  TTC Camera :  8.920069s   Est. error: 7%
 ```
 
-![]("../without_lidar_filtering/AKAZE_ORB_MAT_BF_SEL_NN_12_[TTC_Lidar=-10.853745s]_[TTC_Camera=12.145637s] - 127 matches.png")
-![]("../without_lidar_filtering/AKAZE_ORB_MAT_BF_SEL_NN_17_[TTC_Lidar=-9.994236s]_[TTC_Camera=8.703067s] - 125 matches.png")
+![](/without_lidar_filtering/AKAZE_ORB_MAT_BF_SEL_NN_12_[TTC_Lidar=-10.853745s]_[TTC_Camera=12.145637s]_127_matches.png)
+![](/without_lidar_filtering/AKAZE_ORB_MAT_BF_SEL_NN_17_[TTC_Lidar=-9.994236s]_[TTC_Camera=8.703067s]_125_matches.png)
 
 ### Condition 1: The TTC value should never be negative
 
@@ -118,8 +118,8 @@ The TTC value should decrease monotonically. For the same reason above, given th
 
 Here are the results of more reliable Lidar-based TTC estimation
 
-![]("../with_lidar_filtering/AKAZE_ORB_MAT_BF_SEL_NN_12_[TTC_Lidar=-10.853745s]_[TTC_Camera=12.145637s] - 127 matches.png")
-![]("../with_lidar_filtering/AKAZE_ORB_MAT_BF_SEL_NN_17_[TTC_Lidar=-9.994236s]_[TTC_Camera=8.703067s] - 125 matches.png")
+![](/with_lidar_filtering/AKAZE_ORB_MAT_BF_SEL_NN_12_[TTC_Lidar=-10.853745s]_[TTC_Camera=12.145637s]_127_matches.png)
+![](/with_lidar_filtering/AKAZE_ORB_MAT_BF_SEL_NN_17_[TTC_Lidar=-9.994236s]_[TTC_Camera=8.703067s]_125_matches.png)
 
 by using these techniques to improve the robustness of the TTC estimation using Lidar measuremnts:
 
@@ -256,7 +256,7 @@ Amongst all combinations of tested descriptors, the combination of`BRISK` detect
 
 For example at frame 11, the estimated camera-based TTC is not plausible because the TTC increases rapidly from the last frame (i.e. changing from 17.46s to 268.48s). One possible reason for this observation is that the keypoint in the current frame was incorrectly mapped to the window of the truck.
 
-![]("../descriptor_matching/BRISK_ORB_MAT_FLANN_SEL_NN_ROI_match#11 - Found 8 matches.png")
+![](/descriptor_matching/BRISK_ORB_MAT_FLANN_SEL_NN_ROI_match#11_8_matches.png)
 
 ```
 -------------------------------------
@@ -331,7 +331,7 @@ An example of an unreliable camera-based TTC estimation was found when `HARRIS` 
 
 For example at frame 3, roof of the car was incorrectly mapped to the roof of the truck
 
-![]("../descriptor_matching/HARRIS_FREAK_MAT_FLANN_SEL_NN_ROI_match#3 - Found 10 matches.png")
+![](/descriptor_matching/HARRIS_FREAK_MAT_FLANN_SEL_NN_ROI_match#3_10_matches.png)
 
 
 ```
