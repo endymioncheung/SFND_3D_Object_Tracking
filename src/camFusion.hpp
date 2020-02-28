@@ -24,7 +24,7 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 double avg_int_vector(std::vector<int> const& v);
 double avg_double_vector(std::vector<double> const& v);
 void showROILidarStats(std::vector<int> &numLidarPtsList, bool showDetailStats);
-void showDetectMatchingStats(std::string cfg, std::vector<int> &detections_list, std::vector<int> &matches_list, 
+void showDetectMatchingStats(std::string cfg, bool bWriteToCSV, std::vector<int> &detections_list, std::vector<int> &matches_list, 
                             std::vector<double> &t_detKeypoints, std::vector<double> &t_descKeypoints, std::vector<double> &t_matchDescriptors);
 void showTTC(std::vector<double> &ttcLidar_list, std::vector<double> &ttcCamera_list, double sensorFrameRate, double threshold_pct=0.1);
 

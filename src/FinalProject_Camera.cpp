@@ -22,36 +22,172 @@
 
 using namespace std;
 
+// Check the string is in the vector
+bool valid_input(std::vector<string> v, string key)
+{
+    bool error = false;
+    if (find(v.begin(), v.end(), key) == v.end())
+    {
+		cout << key << " not found. Please try again with one of the following:" << endl;
+        for (auto item : v)
+            cout << item << " ,";
+        error = true;
+    }
+    return error;
+}
+
+bool isNumber(string s) 
+{ 
+    for (int i = 0; i < s.length(); i++) 
+        if (isdigit(s[i]) == false) 
+            return false; 
+  
+    return true; 
+} 
+
 /* MAIN PROGRAM */
 int main(int argc, const char *argv[])
 {
+    // Data location
+    string dataPath = "../";
+    string saveImgPath = "../saved_images/";
+
+    // Camera
+    string imgBasePath = dataPath + "images/";
+    string imgPrefix = "KITTI/2011_09_26/image_02/data/000000"; // left camera, color
+    string imgFileType = ".png";
+    
+    // Image data range
+    int imgStartIndex = 0; // first file index to load (assumes Lidar and camera names have identical naming convention)
+    int imgEndIndex = 50;   // last file index to load
+    int imgStepWidth = 1;
+    int imgFillWidth = 4;  // no. of digits which make up the file index (e.g. img-0001.png)
+
     /* CAMERA OBJECT DETECTION CONFIGURATION */
-    const string detectorType     = "BRISK";    // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-    const string descriptorType   = "BRISK";    // BRISK, ORB, AKAZE, SIFT, BRIEF, FREAK
-    const string matcherType      = "MAT_BF";   // MAT_BF, MAT_FLANN
-    const string selectorType     = "SEL_NN";   // SEL_NN, SEL_KNN
-    const string cfg = detectorType + ", " + descriptorType + ", " + matcherType + ", " + selectorType;
+    // Possible object detection options
+    vector<string> list_detectorType{"SHITOMASI","HARRIS","FAST","BRISK","ORB","AKAZE","SIFT"};
+    vector<string> list_descriptorType{"BRISK","ORB","AKAZE","SIFT","BRIEF","FREAK"};
+    vector<string> list_matcherType{"MAT_BF","MAT_FLANN"};
+    vector<string> list_selectorType{"SEL_NN","SEL_KNN"};
+
+    // Default object detection parameters
+    string detectorType     = "SHITOMASI";// SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+    string descriptorType   = "BRISK";    // BRISK, ORB, AKAZE, SIFT, BRIEF, FREAK
+    string matcherType      = "MAT_BF";   // MAT_BF, MAT_FLANN
+    string selectorType     = "SEL_NN";   // SEL_NN, SEL_KNN
+
+    bool bWriteToCSV = false;                   // save results to CSV
 
     /* LIDAR CONFIGURABLE PARAMETERS */
-    const int minLidarPtsForBb = 100;           // minimum number of Lidar for bounding boxes
+    int minLidarPtsForBb = 100;                 // minimum number of Lidar for bounding boxes
 
     /* SAVE AUGMENTED IMAGES (WITH TTC RESULTS) */
-    const bool bSaveTTCImg = true;              // save TTC frame
-    
+    bool bSaveTTCImg = false;                   // save TTC frame
+    bool bVis = false;                          // visualize results
+
     const bool bShowROILidarStats = true;       // show statistics of lidar points within the ROI for all frames
     const bool bShowROILidarsPts = false;       // show number of lidar points within the ROI
     const bool bVerbose = false;                // show major execution steps
-    bool bVis = false;                          // visualize results
     const bool bShowTimer = false;              // show timers for keypoint detection, extraction and matching per frame
 
     /* TOOLS FOR EVALUATING DESCRIPTORS MATCHING PERFORMANCE
-       ALL BOOLEAN SHOULD BE DEFAULT TO FALSE;
-     */
+       ALL BOOLEAN SHOULD BE DEFAULT TO FALSE; */
     const bool bLimitKpts = false;              // limit number of detected keypoints. Should only enable for debugging
     const int maxKeypoints = 100;               // limit number of detected keypoints (for debugging only)
     const bool bShowMatching = false;           // show image descriptor matching
     const bool bSaveMatching = false;           // save image descriptor matching
     if (bLimitKpts) cout << " NOTE: Keypoints have been limited!" << endl;
+
+    // Input handling
+    bool inputError = false;
+    for (int i = 1; i < argc; ++i)
+    {
+        // Run default parameters if no input arguments are supplied
+        if (argc == 0) break;
+
+        /* INPUT ARGUMENTS */
+        string arg = argv[i];
+        if ( (arg == "--detector") || (arg == "-det") ) {
+            if (i + 1 < argc)
+            {
+                detectorType = argv[i+1];
+                inputError = valid_input(list_detectorType,detectorType);
+            }
+        } else if ( (arg == "--descriptor") || (arg == "-des") ) {
+            if (i + 1 < argc)
+            {
+                descriptorType = argv[i+1];
+                inputError = inputError || valid_input(list_descriptorType,descriptorType);
+            }
+        } else if ( (arg == "--matcher") || (arg == "-match") ) {
+            if (i + 1 < argc)
+            {
+                matcherType = argv[i+1];
+                inputError = inputError || valid_input(list_matcherType,matcherType);
+            }
+        } else if ( (arg == "--selector") || (arg == "-sel") ) {
+            if (i + 1 < argc)
+            {
+                selectorType = argv[i+1];
+                inputError = inputError || valid_input(list_selectorType,selectorType);
+            }
+        }
+
+        /* [OPTIONAL] INPUT ARGUMENTS */
+        // Check if saving augmented TTC image is required
+        if ( (arg == "--saveTTC") || (arg == "-saveTTC") ) {
+            bSaveTTCImg = true;
+        }
+
+        // Check if minimum number of Lidar points are specified
+        else if ( (arg == "--minLidarPts") || (arg == "-minLidar") ) {
+            if (i + 1 < argc)
+            {
+                if (isNumber(argv[i+1]))
+                {
+                    minLidarPtsForBb = atoi(argv[i+1]);
+                } else {
+                    cerr << argv[i+1] << " is not an integer. Run the program again with an integer" << endl;
+                    return 1;
+                }
+            }
+        }
+
+        // Check if image start index is specified
+        else if ( (arg == "--start") || (arg == "-start") ) {
+            if (i + 1 < argc)
+            {
+                if (isNumber(argv[i+1]))
+                {
+                    imgStartIndex = atoi(argv[i+1]);
+                } else {
+                    cerr << argv[i+1] << " is not an integer. Run the program again with an integer" << endl;
+                    return 1;
+                }
+            }
+        }
+
+        // Check if image end index is specified
+        else if ( (arg == "--end") || (arg == "-end") ) {
+            if (i + 1 < argc)
+            {
+                if (isNumber(argv[i+1]))
+                {
+                    imgEndIndex = atoi(argv[i+1]);
+                } else {
+                    cerr << argv[i+1] << " is not an integer. Run the program again with an integer" << endl;
+                    return 1;
+                }
+            }
+        }
+        
+    }
+
+    if(inputError)
+    {
+        cerr << "Invalid input arguments. Please run the program again" << endl;
+        return 1;
+    }
 
     /* INIT VARIABLES AND DATA STRUCTURES */
 
@@ -77,20 +213,7 @@ int main(int argc, const char *argv[])
     // Results of Lidar and Camera based TTC
     vector<double> ttcLidar_list, ttcCamera_list;
 
-    // Data location
-    string dataPath = "../";
-    string saveImgPath = "../report/";
-
-    // Camera
-    string imgBasePath = dataPath + "images/";
-    string imgPrefix = "KITTI/2011_09_26/image_02/data/000000"; // left camera, color
-    string imgFileType = ".png";
-    int imgStartIndex = 0; // first file index to load (assumes Lidar and camera names have identical naming convention)
-    int imgEndIndex = 50;   // last file index to load
-    int imgStepWidth = 1; 
-    int imgFillWidth = 4;  // no. of digits which make up the file index (e.g. img-0001.png)
     double sensorFrameRate = 10.0 / imgStepWidth; // frames per second [Hz] for Lidar and camera
-
     cout << "Processing frame index from " << imgStartIndex << " to " << imgEndIndex << " every " << imgStepWidth << " frame(s)" << endl << endl; 
 
     // Object detection
@@ -451,11 +574,12 @@ int main(int argc, const char *argv[])
     /* LIDAR POINTS WITHIN ROI ANALYSIS */
     if (bShowROILidarStats) showROILidarStats(numLidarPtsList,bShowROILidarsPts);
 
-    /* DETECTION AND MATCHING RESULTS*/
-    showDetectMatchingStats(cfg, detections_list, matches_list, t_detKeypoints, t_descKeypoints, t_matchDescriptors);
-
     /* LIDAR AND CAMERA BASED TTC RESULTS */
     showTTC(ttcLidar_list,ttcCamera_list,sensorFrameRate);
+
+    /* DETECTION AND MATCHING RESULTS*/
+    const string cfg = detectorType + ", " + descriptorType + ", " + matcherType + ", " + selectorType;
+    showDetectMatchingStats(cfg, bWriteToCSV, detections_list, matches_list, t_detKeypoints, t_descKeypoints, t_matchDescriptors);
 
     return 0;
 }

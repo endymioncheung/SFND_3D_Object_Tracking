@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <numeric>
 #include <opencv2/highgui/highgui.hpp>
@@ -250,7 +251,7 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
     // Sort the distance ratio in ascending order
     sort(distRatios.begin(), distRatios.end());
 
-    // Find the median index for the distance ratio
+    // Sort the distance ratio in ascending order
     long medIndex = floor(distRatios.size() / 2.0);
 
     // Compute median distance ratio to remove outlier influence
@@ -345,7 +346,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         mmap.insert({curr_boxID, prev_boxID});
     }
 
-    // Create the list of bounding box IDs for current frame, which will be used
+    // Create a list of bounding box IDs for current frame, which will be used
     // for constructing the best matching bounding box match pair `bbBestMatches`
     vector<int> currFrameBoxIDs;
     for (auto box : currFrame.boundingBoxes)
@@ -390,7 +391,7 @@ void showTTC(std::vector<double> &ttcLidar_list, std::vector<double> &ttcCamera_
     cout << " Time-To-Collision (TTC) frame analysis " << endl;
     cout << " TTC calculation updates every " << 1/sensorFrameRate << " s" << endl;
     cout << endl;
-    cout << " * indiciates if the TTC is negative or it is " << threshold_pct * 100 << "% greater than the last frame" << endl;
+    cout << " * indicates if the TTC is negative or it is " << threshold_pct * 100 << "% greater than the last frame" << endl;
     cout << "-----------------------------------------------------------------------------" << endl;
     
     string ttcLidar_err = "";
@@ -432,7 +433,7 @@ void showTTC(std::vector<double> &ttcLidar_list, std::vector<double> &ttcCamera_
     cout << endl;
 }
 
-void showDetectMatchingStats(std::string cfg, std::vector<int> &detections_list, std::vector<int> &matches_list, 
+void showDetectMatchingStats(std::string cfg, bool bWriteToCSV, std::vector<int> &detections_list, std::vector<int> &matches_list, 
                             std::vector<double> &t_detKeypoints, std::vector<double> &t_descKeypoints, std::vector<double> &t_matchDescriptors)
 {
     // Detector Statistics
@@ -477,12 +478,34 @@ void showDetectMatchingStats(std::string cfg, std::vector<int> &detections_list,
     cout << "    Keypoint detections and matching CSV format      " << endl;
     cout << " Detector type, Descriptor type, Matcher type, Selector type, avg/min/max detection, avg/min/max matches, avg/min/max detection time, avg/min/max matching time" << endl;
     cout << "-----------------------------------------------------" << endl;
-    
+
     cout << cfg << ", " << avgDetects_list << ", " << minDetects_list << ", " << maxDetects_list
                            << ", " << avgMatches_list << ", " << minMatches_list << ", " << maxMatches_list
                            << ", " << avg_t_detKeypoints << ", " << min_t_detKeypoints << ", " << max_t_detKeypoints
                            << ", " << avg_t_descKeypoints << ", " << min_t_descKeypoints << ", " << max_t_descKeypoints
                            << ", " << avg_t_matchDescriptors << ", " << min_t_matchDescriptors << ", " << max_t_matchDescriptors << endl;
+    
+    if (bWriteToCSV)
+    {
+        // Write keypoint detections and matching stats to CSV file
+        std::ofstream outputFile;
+        
+        // Create a name for the file output
+        string filename = "../report/analysis.csv";
+
+        // Create and open the .csv file
+        outputFile.open(filename,std::ios_base::app);
+        
+        // write the data to the output file
+        outputFile << cfg << ", " << avgDetects_list << ", " << minDetects_list << ", " << maxDetects_list
+                            << ", " << avgMatches_list << ", " << minMatches_list << ", " << maxMatches_list
+                            << ", " << avg_t_detKeypoints << ", " << min_t_detKeypoints << ", " << max_t_detKeypoints
+                            << ", " << avg_t_descKeypoints << ", " << min_t_descKeypoints << ", " << max_t_descKeypoints
+                            << ", " << avg_t_matchDescriptors << ", " << min_t_matchDescriptors << ", " << max_t_matchDescriptors << endl;
+
+        // Close the output file
+        outputFile.close();
+    }
 }
 
 void showROILidarStats(std::vector<int> &numLidarPtsList, bool showDetailStats)
